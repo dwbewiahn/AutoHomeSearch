@@ -1,3 +1,4 @@
 .env
 config/pushover_config.json
 /venv/
+__pycache__/pushover_notifier.cpython-39.pyc
