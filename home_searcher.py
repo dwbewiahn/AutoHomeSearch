@@ -25,7 +25,7 @@ search_filters = {
 }
 
 # define the search frequency (every 5 minutes)
-search_frequency = 5  # minutes
+search_frequency = 3  # minutes
 # initialize the winsound library
 winsound.PlaySound(None, winsound.SND_PURGE)
 # initialize the schedule library
@@ -44,7 +44,7 @@ def is_new_apartment(apartment):
     minutes, _ = divmod(remainder, 60)
     delta_created = now - created_time
     days_created = delta_created.days
-    if now - last_refresh_time < timedelta(minutes=5):
+    if now - last_refresh_time < timedelta(minutes=3):
         print(f"Search: {datetime.now().strftime('%H:%M:%S')} | Advertised : {last_refresh_time.strftime('%H:%M:%S - %d/%m/%Y')}  | {days:03d} days {hours:02d} hours {minutes:02d} minutes | Created on: {created_time.strftime('%d/%m/%Y')} | {(delta_created.days):03d} days | {apartment['url']} ")
         # TODO Implement pushover (f"Apartment found: {last_refresh_time.strftime('%H:%M:%S')}  | {apartment['url']}")
         return True
@@ -59,9 +59,12 @@ def search_apartments():
     apartments = data['data']
     for apartment in apartments:
          if is_new_apartment(apartment):
-            duration = 1000  # milliseconds
-            frequency = 440  # Hz
-            for i in range(6):
+            duration = 400  # milliseconds
+            frequency = 2500  # Hz
+            for i in range(3):
+                time.sleep(0.9) 
+                winsound.Beep(frequency, duration)
+                time.sleep(0.1) 
                 winsound.Beep(frequency, duration)
                 
 
