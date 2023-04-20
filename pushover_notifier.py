@@ -1,4 +1,5 @@
 import json
+import http.client, urllib
 
 class PushoverNotifier:
 
@@ -17,6 +18,22 @@ class PushoverNotifier:
     def get_user_key(self):
         config = self.read_config_file()
         return config['user_key']
-        
 
-    
+    def send_notification(self, message):
+        APP_TOKEN = self.get_app_token()
+        USER_KEY = self.get_user_key()
+        conn = http.client.HTTPSConnection("api.pushover.net:443")
+        conn.request("POST", "/1/messages.json",
+        urllib.parse.urlencode({
+            "token": APP_TOKEN,
+            "user": USER_KEY,
+            "message": message,
+        }), { "Content-type": "application/x-www-form-urlencoded" })
+        conn.getresponse()
+        print()
+
+
+
+
+
+
