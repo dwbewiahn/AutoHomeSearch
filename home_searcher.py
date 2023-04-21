@@ -14,8 +14,8 @@ search_filters = {
     "filter_enum_tipologia[1]": "t0",
     "filter_enum_tipologia[2]": "t2",
     "filter_enum_tipologia[3]": "t2",
-    "filter_float_price:from": "400",
-    "filter_float_price:to": "750",
+    "filter_float_price:from": "200",
+    "filter_float_price:to": "800",
     "filter_refiners": "spell_checker",
     "limit": "40",
     "offset": "0",
@@ -47,9 +47,9 @@ def is_new_apartment(apartment):
     minutes, _ = divmod(remainder, 60)
     delta_created = now - created_time
     days_created = delta_created.days
-    if now - last_refresh_time < timedelta(minutes=10):
-        print(f"Search: {datetime.now().strftime('%H:%M:%S')} | Advertised : {last_refresh_time.strftime('%H:%M:%S - %d/%m/%Y')}  | {days:03d} days {hours:02d} hours {minutes:02d} minutes | Created on: {created_time.strftime('%d/%m/%Y')} | {(delta_created.days):03d} days | {apartment['url']} ")
-        notifier.send_notification(f"Apartment found!Post time:{last_refresh_time.strftime('%H:%M:%S')}|{apartment['url']}")
+    if now - last_refresh_time < timedelta(minutes=search_frequency):
+        print(f"Search: {datetime.now().strftime('%H:%M:%S')} | Advertised : {last_refresh_time.strftime('%H:%M:%S - %d/%m/%Y')}  | {days:03d} days {hours:02d} hours {minutes:02d} minutes | Created on: {created_time.strftime('%d/%m/%Y')} | {(days_created):03d} days | {apartment['url']} ")
+        notifier.send_notification(f"Apartment found!{last_refresh_time.strftime('%H:%M')}|{apartment['url']}")
         return True
     else:
         return False
@@ -57,7 +57,14 @@ def is_new_apartment(apartment):
 
 def search_apartments():
     url = "https://www.olx.pt/api/v1/offers/"
-    response = requests.get(url, params=search_filters)
+    response = None
+    while response is None:
+        try:
+            response = requests.get(url, params=search_filters)
+        except requests.exceptions.ConnectionError:
+            print("Connection error. Retrying in 10 seconds...")
+            time.sleep(10)
+            continue   
     data = json.loads(response.text)
     apartments = data['data']
     for apartment in apartments:
