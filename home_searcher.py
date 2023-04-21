@@ -81,7 +81,11 @@ def search_apartments():
 def job():
     global search_count
     print(f"## Search {search_count} : {datetime.now().strftime('%H:%M')} # Next search in {search_frequency} minutes ##")
-    search_apartments()
+    try:
+        search_apartments()
+    except requests.exceptions.ConnectionError:
+        print("Connection error. Skipping search {search_count}")
+        pass
     search_count+=1
 
 print('################ Starting Search ################')
